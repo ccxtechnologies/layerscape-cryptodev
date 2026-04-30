@@ -16,11 +16,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc.,
- * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ * 51 Franklin Street, Fifth Floor, Boston, MA	02110-1301, USA.
  */
 
 #include <crypto/scatterwalk.h>
 #include <linux/scatterlist.h>
+#include <linux/version.h>
 #include "util.h"
 
 /* These were taken from Maxim Levitsky's patch to lkml.
@@ -44,8 +45,13 @@ struct scatterlist *sg_advance(struct scatterlist *sg, int consumed)
 	sg->length -= consumed;
 
 	if (sg->offset >= PAGE_SIZE) {
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(6, 17, 0))
 		struct page *page =
 			nth_page(sg_page(sg), sg->offset / PAGE_SIZE);
+#else
+		struct page *page =
+			sg_page(sg) + (sg->offset / PAGE_SIZE);
+#endif
 		sg_set_page(sg, page, sg->length, sg->offset % PAGE_SIZE);
 	}
 
@@ -77,4 +83,3 @@ int sg_copy(struct scatterlist *sg_from, struct scatterlist *sg_to, int len)
 	sg_mark_end(sg_to);
 	return 0;
 }
-

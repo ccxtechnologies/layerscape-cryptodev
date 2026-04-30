@@ -42,9 +42,16 @@
 extern const struct crypto_type crypto_givcipher_type;
 #endif
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
+static void cryptodev_complete(void *req, int err)
+{
+	struct crypto_async_request *async_req = req;
+	struct cryptodev_result *res = async_req->data;
+#else
 static void cryptodev_complete(struct crypto_async_request *req, int err)
 {
 	struct cryptodev_result *res = req->data;
+#endif
 
 	if (err == -EINPROGRESS)
 		return;
@@ -373,7 +380,12 @@ int cryptodev_hash_init(struct hash_data *hdata, const char *alg_name,
 	}
 
 	hdata->digestsize = crypto_ahash_digestsize(hdata->async.s);
+
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(6, 7, 0))
 	hdata->alignmask = crypto_ahash_alignmask(hdata->async.s);
+#else
+	hdata->alignmask = 0;
+#endif
 
 	init_completion(&hdata->async.result.completion);
 

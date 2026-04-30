@@ -1180,6 +1180,7 @@ static struct ctl_table verbosity_ctl_dir[] = {
 	{},
 };
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(6, 5, 0))
 static struct ctl_table verbosity_ctl_root[] = {
 	{
 		.procname       = "ioctl",
@@ -1188,7 +1189,9 @@ static struct ctl_table verbosity_ctl_root[] = {
 	},
 	{},
 };
+#endif
 static struct ctl_table_header *verbosity_sysctl_header;
+
 static int __init init_cryptodev(void)
 {
 	int rc;
@@ -1205,7 +1208,11 @@ static int __init init_cryptodev(void)
 		return rc;
 	}
 
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(6, 5, 0))
 	verbosity_sysctl_header = register_sysctl_table(verbosity_ctl_root);
+#else
+	verbosity_sysctl_header = register_sysctl("ioctl", verbosity_ctl_dir);
+#endif
 
 	pr_info(PFX "driver %s loaded.\n", VERSION);
 
