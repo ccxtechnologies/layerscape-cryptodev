@@ -42,7 +42,7 @@
 extern const struct crypto_type crypto_givcipher_type;
 #endif
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 1, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(6, 4, 0))
 static void cryptodev_complete(void *req, int err)
 {
 	struct crypto_async_request *async_req = req;

@@ -314,11 +314,15 @@ static void read_tls_hash(struct scatterlist *dst_sg, int len, void *hash, int h
 
 static int pad_record(struct scatterlist *dst_sg, int len, int block_size)
 {
-	uint8_t pad[block_size];
-	int pad_size = block_size - (len % block_size);
+	uint8_t pad[128];
+	int pad_size;
 
+	if (WARN_ON_ONCE(block_size > sizeof(pad))) {
+		block_size = sizeof(pad);
+	}
+
+	pad_size = block_size - (len % block_size);
 	memset(pad, pad_size - 1, pad_size);
-
 	scatterwalk_map_and_copy(pad, dst_sg, len, pad_size, 1);
 
 	return pad_size;
